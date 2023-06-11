@@ -1,5 +1,6 @@
 @using System.IO.Compression
 @using WarHub.ArmouryModel.EditorServices
+@using WarHub.ArmouryModel
 @using WarHub.ArmouryModel.Source
 @using WarHub.ArmouryModel.Source.BattleScribe
 
@@ -31,49 +32,57 @@
     @* TODO make this a fab or etc *@
     @if (!AddMode)
     {
-        <TitlePart>Roster Edit</TitlePart>
-
-        <FluentTreeView>
-            @foreach (var force in RosterSymbol.Forces)
-            {
-                <FluentTreeItem Expanded="true">
-                    <span>@force.Name</span>
-
-                    @foreach (var category in force.Categories)
+        @* <TitlePart>Roster Edit</TitlePart> *@
+        <div style="display: flex; height: 100px;">
+            <div style="width: 50%; background: green;">
+                <RosterAddMenu OnAddDone="StateHasChanged"></RosterAddMenu>
+            </div>
+            <div style="flex-grow: 1; background: blue;">
+                <FluentTreeView>
+                    @foreach (var force in RosterSymbol.Forces)
                     {
                         <FluentTreeItem Expanded="true">
-                            <span>@category.Name</span>
+                            <span>@force.Name</span>
 
-                            @foreach (var selection in force.Selections
-                           .Where(sel => sel.PrimaryCategory?.SourceEntry.Id == category.SourceEntry.Id))
+                            @foreach (var category in force.Categories)
                             {
                                 <FluentTreeItem Expanded="true">
-                                    <SelectionDisplay Selection="selection" />
+                                    <span>@category.Name</span>
+
+                                    @foreach (var selection in force.Selections
+                                .Where(sel => sel.PrimaryCategory?.SourceEntry.Id == category.SourceEntry.Id))
+                                    {
+                                        <FluentTreeItem Expanded="true">
+                                            <SelectionDisplay SelectionClosed="StateHasChanged" Selection="selection" />
+                                        </FluentTreeItem>
+                                    }
                                 </FluentTreeItem>
                             }
+                            <FluentTreeItem Expanded="true">
+                                <span>Uncategorized</span>
+                                @foreach (var selections in force.Selections
+                            .Where(sel => sel.PrimaryCategory is null))
+                                {
+                                    <FluentTreeItem Expanded="true">
+                                        <SelectionDisplay SelectionClosed="StateHasChanged" Selection="selections" />
+                                    </FluentTreeItem>
+                                }
+                            </FluentTreeItem>
                         </FluentTreeItem>
                     }
-                    <FluentTreeItem Expanded="true">
-                        <span>Uncategorized</span>
-                        @foreach (var selections in force.Selections
-                       .Where(sel => sel.PrimaryCategory is null))
-                        {
-                            <FluentTreeItem Expanded="true">
-                                <SelectionDisplay Selection="selections" />
-                            </FluentTreeItem>
-                        }
-                    </FluentTreeItem>
-                </FluentTreeItem>
-            }
-        </FluentTreeView>
+                </FluentTreeView>
+            </div>
+            @* <FluentButton Appearance="Appearance.Accent" @onclick=DownloadRoster>Download .ros</FluentButton>
+            <FluentButton Appearance="Appearance.Accent" @onclick=DownloadRosterZ>Download .rosz</FluentButton> *@
+        </div>
+        
 
-        <FluentButton Appearance="Appearance.Accent" @onclick=ToggleAdd>Add Units</FluentButton>
-        <FluentButton Appearance="Appearance.Accent" @onclick=DownloadRoster>Download .ros</FluentButton>
-        <FluentButton Appearance="Appearance.Accent" @onclick=DownloadRosterZ>Download .rosz</FluentButton>
+        @* <FluentButton Appearance="Appearance.Accent" @onclick=ToggleAdd>Add Units</FluentButton> *@
+
     }
     else
     {
-        <RosterAddMenu OnAddDone="ToggleAdd"></RosterAddMenu>
+        <RosterAddMenu OnAddDone="StateHasChanged"></RosterAddMenu>
     }
 }
 

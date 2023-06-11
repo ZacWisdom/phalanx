@@ -5,7 +5,7 @@
 {
     <div>
         <div>Roster Name:</div>
-        <FluentTextField @bind-Value="rosterName"></FluentTextField>
+        <FluentTextField @bind-Value="@rosterName"></FluentTextField>
         <br />
         <div>Cost Limits (-1 for no limit)</div>
 
@@ -58,6 +58,9 @@ else
 
     private RosterNode? Roster => Editor?.State.Roster;
 
+    [Parameter]
+    public EventCallback Callback {get; set;}
+
     private Dictionary<string, decimal> CostLimitInputs = new Dictionary<string, decimal>();
 
     private string rosterName = default!;
@@ -101,7 +104,6 @@ else
 
     Task ChangeRosterName()
     {
-
         if (Editor is null || Editor?.State is not { Roster: { } rosterState })
         {
             return Task.CompletedTask;
@@ -112,6 +114,6 @@ else
             Console.WriteLine("set roster name to " + rosterName);
             Editor?.ApplyOperation(RosterOperations.ChangeRosterName(rosterName));
         }
-        return Task.CompletedTask;
+        return Callback.InvokeAsync();
     }
 }

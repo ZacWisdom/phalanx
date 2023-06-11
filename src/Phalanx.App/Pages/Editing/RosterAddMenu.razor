@@ -6,7 +6,7 @@
 {
     @* TODO this render fires every time an add count gets modified
         fine for testing for now, but might expensive with bigger gamesystems *@
-    <TitlePart>Add Units</TitlePart>
+    @* <TitlePart>Add Units</TitlePart> *@
 
     <FluentTreeView>
         @foreach (var forceOpts in Forces)
@@ -22,8 +22,10 @@
                             <FluentTreeItem Expanded="true">
                                 <div style="display: flex; gap: 1em;">
                                     <FluentNumberField TValue="int" @bind-Value="selectionOpts.Count" Min="0" Size="2" />
-                                    <span>@selectionOpts.Entry.Name</span>
-                                    <CostDisplay Values="selectionOpts.Entry.Costs" />
+                                    <div @ondblclick="() =>AddSingle(selectionOpts)" style="display: flex; gap: 1em;">
+                                        <span>@selectionOpts.Entry.Name</span>
+                                        <CostDisplay Values="selectionOpts.Entry.Costs" />
+                                    </div>
                                 </div>
                             </FluentTreeItem>
                         }
@@ -32,7 +34,7 @@
             </FluentTreeItem>
         }
     </FluentTreeView>
-    <FluentButton Appearance="Appearance.Accent" @onclick=AddSelected>Add</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" @onclick=AddSelected>Bulk Add</FluentButton>
     <FluentButton Appearance="Appearance.Accent" @onclick=OnAddDone>Cancel</FluentButton>
 }
 
@@ -90,6 +92,15 @@
                 Forces.Add(forceOpts);
             }
         }
+    }
+
+    Task AddSingle(AddSelection selection){
+        if (Editor is { } editor)
+        {
+            selection.Count = 1;
+            AddSelectionOp(editor, selection);
+        }
+        return OnAddDone.InvokeAsync();
     }
 
     Task AddSelected()
